@@ -9,6 +9,11 @@
 # Monitor: monitor.jungletestnet.io
 # Home: jungletestnet.io
 ###########################################################################
+if [[ $(id -u) != 0 ]]
+then 
+	printf "You should run this script with root privileges use sudo or su\n"
+	exit -1
+fi
 
 install_tools(){
 	if [[ $OS == "ubuntu" ]] || [[ $OS == "debian" ]]
@@ -36,8 +41,8 @@ if [[ -f $(find /usr -type f -name curl)  &&  -f $(find /usr -type f -name jq) ]
 then
 	TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"')
 	RC_TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
-    RC_EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
+	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
+	RC_EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
 else
 	clear
 	printf "These packages are requierd to prepare a NODE for JungleTestNet:\n"
@@ -71,10 +76,10 @@ else
 		esac
 	done
 	
-	TAG=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"')
+	TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"')
 	RC_TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
-	RC_EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
+	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
+	RC_EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
 fi
 #############
 #
@@ -226,13 +231,24 @@ update_symlink_path(){
 			if [[ -L ${GLOBAL_PATH}/bin ]]
 			then
 				unlink $GLOBAL_PATH/bin
-				ln -s /usr/opt/eosio/$(nodeos -v | grep -o '[0-9]\.[0-9]\.[0-9]')*/bin $GLOBAL_PATH/bin
+				if [[ $# == 0 ]]
+				then
+					ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin
+				elif [[ $# > 0 ]]
+				then
+					ln -s /usr/opt/eosio/$RC_EOS_VER/bin $GLOBAL_PATH/bin
+				fi
 			fi
 		elif [[ -L "$TESTNET_BIN_DIR" ]] 
 			then
 				unlink $TESTNET_BIN_DIR
-				ln -s /usr/opt/eosio/$(nodeos -v | grep -o '[0-9]\.[0-9]\.[0-9]')*/bin $GLOBAL_PATH/bin
-
+				if [[ $# == 0 ]]
+				then
+					ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin
+				elif [[ $# > 0 ]]
+				then
+					ln -s /usr/opt/eosio/$RC_EOS_VER/bin $GLOBAL_PATH/bin
+				fi
 		fi
 	fi
 
@@ -314,13 +330,12 @@ update_eosio(){
 		then
 			$GET_COMM $(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.centos7_bin' | tr -d '"')
 			#rpm -Uvh ./eosio*${RC_EOS_VER}*.rpm --nodeps
-			yum -y update ./eosio*${RC_EOS_VER}*.rpm
+			yum -y install ./eosio*${RC_EOS_VER}*.rpm
 			rm ./eosio*${RC_EOS_VER}*.rpm
 		elif [[ $OS == "fedora" ]]
 		then
 			$GET_COMM $(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.fedora27_bin' | tr -d '"')
-			#rpm -Uvh ./eosio*${RC_EOS_VER}*.rpm --nodeps
-			yum  update -y ./eosio*${RC_EOS_VER}*.rpm
+			dnf install -y ./eosio*${RC_EOS_VER}*.rpm
 			rm ./eosio*${RC_EOS_VER}*.rpm
 		fi
 		
@@ -331,7 +346,13 @@ update_eosio(){
 		printf "\033[0;31mUpdate unsuccessfully\n\033[m"
 		exit -1
 	else
-		update_symlink_path
+		if [[ $# == 0 ]]
+		then
+			update_symlink_path
+		elif [[ $# > 0 ]]
+		then
+			update_symlink_path 1
+		fi
 		printf "\033[0;32mUpdated successfully\n\033[m"
 	fi
 
@@ -438,4 +459,4 @@ fi
 
 serch_installed_eosio_version
 logo_bottom
-printf "\033[0;31mAfter Upgrade please go to NODE directory and run ./stop.sh and ./start.sh script to compleate upgrade\033[m\n"
+printf "\033[0;31mAfter Upgrade please go to the NODE directory and run ./stop.sh and then ./start.sh script to compleate upgrade\033[m\n"
