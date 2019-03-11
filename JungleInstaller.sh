@@ -9,8 +9,11 @@
 # Monitor: monitor.jungletestnet.io
 # Home: jungletestnet.io
 ###########################################################################
-
-
+if [[ $(id -u) != 0 ]]
+then 
+	printf "You should run this script with root privileges use sudo or su\n"
+	exit -1
+fi
 
 
 install_tools(){
@@ -1370,7 +1373,8 @@ sync_method(){
 			break
 			;;
 		"Exit" )
-			printf "Exit\n"
+			printf "\033[0;31mYou choose Exit so\n"
+			printf "Please do not forget run \"./start.sh --delete-all-blocks --genesis-json genesis.json\" in $TESTNET when you will start your node in the first time\033[0m\n"
 			exit 1
 			;;
 		esac
