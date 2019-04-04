@@ -965,8 +965,8 @@ install_from_source(){
     	git clone https://github.com/eosio/eos --recursive .
   		git checkout $TAG
     	git submodule update --init --recursive
-    	./eosio_build.sh -s EOS
-    	./eosio_install.sh
+    	./scripts/eosio_build.sh -s EOS
+    	./scripts/eosio_install.sh
 
     else
     	cd $EOS_SOURCE_DIR
@@ -974,8 +974,8 @@ install_from_source(){
     	git clone https://github.com/eosio/eos --recursive .
 		git checkout $TAG
     	git submodule update --init --recursive
-    	./eosio_build.sh -s EOS
-    	./eosio_install.sh
+    	./scripts/eosio_build.sh -s EOS
+    	./scripts/eosio_install.sh
     fi
     if [[ -d "/usr/local/eosio" ]]
     then
@@ -1004,8 +1004,8 @@ update_from_source(){
 	git pull
 	git checkout $TAG
 	git submodule update --init --recursive
-	./eosio_build.sh -s EOS
-	./eosio_install.sh
+	./scripts/eosio_build.sh -s EOS
+	./scripts/eosio_install.sh
 	create_symlink_path
 	printf "DONE\n"
 }

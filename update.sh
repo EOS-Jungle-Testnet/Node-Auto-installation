@@ -269,14 +269,14 @@ update_from_source(){
 		then
 			git checkout $TAG
 			git submodule update --init --recursive
-			./eosio_build.sh -s EOS
-			./eosio_install.sh
+			./scripts/eosio_build.sh -s EOS
+			./scripts/eosio_install.sh
 		elif [[ $# > 0 ]]
 		then
 			git checkout $1
 			git submodule update --init --recursive
-			./eosio_build.sh -s EOS
-			./eosio_install.sh
+			./scripts/eosio_build.sh -s EOS
+			./scripts/eosio_install.sh
 		fi
 }
 
