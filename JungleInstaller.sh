@@ -607,7 +607,8 @@ select answer in "Yes" "No" "Exit"; do
 	    network-version-match = 0
 	    sync-fetch-span = 2000
 	    enable-stale-production = false
-
+	    chain-threads = 4
+	    http-threads = 6
 	    chain-state-db-size-mb = 16384
 	    reversible-blocks-db-size-mb = 1048
 	    contracts-console = true
