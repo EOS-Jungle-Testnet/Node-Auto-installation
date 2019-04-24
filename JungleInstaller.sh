@@ -9,6 +9,7 @@
 # Monitor: monitor.jungletestnet.io
 # Home: jungletestnet.io
 ###########################################################################
+
 if [[ $(id -u) != 0 ]]
 then 
 	printf "You should run this script with root privileges use sudo or su\n"
@@ -38,9 +39,11 @@ OS_VER=$(cat /etc/os-release | grep -i version_id | cut -d '=' -f2 | tr -d '"')
 GET_COMM="wget"
 OS_SOURCE_DIR=""
 TESTNET="JungleTestnet"
-TESTNET_BIN_DIR="$GLOBAL_PATH/bin"
+TESTNET_BIN_DIR="$GLOBAL_PATH/bin/bin"
 DATE=$(date +%Y-%m-%d)
 EOS_SOURCE_DIR=""
+EOS_BUILDED_LOCATION="$HOME/opt/eosio/bin"
+EOS_BINARY_LOCATION="/usr/opt/eosio"
 
 if [[ -f $(find /usr -type f -name curl) ]] && [[ -f $(find /usr -type f -name jq) ]]
 then
@@ -608,7 +611,7 @@ select answer in "Yes" "No" "Exit"; do
 	    sync-fetch-span = 2000
 	    enable-stale-production = false
 	    chain-threads = 4
-	    http-threads = 6
+		http-threads = 6
 	    chain-state-db-size-mb = 16384
 	    reversible-blocks-db-size-mb = 1048
 	    contracts-console = true
@@ -923,27 +926,30 @@ EOF
 ##Source Section
 ######################################################
 create_symlink_path(){
-	if [[ -d "/usr/local/eosio/bin" ]]
+	if  [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio/bin" ]]
 	then
 		if [[ ! -L "$TESTNET_BIN_DIR" ]]
 		then
-			ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+			[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin #ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+			ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
 			
 		elif [[ -L "$TESTNET_BIN_DIR" ]] 
 			then
 				unlink $TESTNET_BIN_DIR
-				ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+				#ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+				ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
 		fi
 	elif [[ -d "/usr/opt/eosio" ]]
 	then
 		if [[ ! -L "$TESTNET_BIN_DIR" ]]
 		then
-			ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin
+			[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin
+			ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
 			
 		elif [[ -L "$TESTNET_BIN_DIR" ]] 
 			then
 				unlink $TESTNET_BIN_DIR
-				ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin
+				ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
 
 		fi
 	fi
@@ -964,7 +970,7 @@ install_from_source(){
     	cd $EOS_SOURCE_DIR
     
     	git clone https://github.com/eosio/eos --recursive .
-  		git checkout $TAG
+    	git checkout $TAG
     	git submodule update --init --recursive
     	./scripts/eosio_build.sh -s EOS
     	./scripts/eosio_install.sh
@@ -973,17 +979,17 @@ install_from_source(){
     	cd $EOS_SOURCE_DIR
     
     	git clone https://github.com/eosio/eos --recursive .
-		git checkout $TAG
+    	git checkout $TAG
     	git submodule update --init --recursive
     	./scripts/eosio_build.sh -s EOS
     	./scripts/eosio_install.sh
     fi
-    if [[ -d "/usr/local/eosio" ]]
+    if [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio" ]]
     then
     	create_symlink_path
     	config_func
     else
-    	printf "033[0;31EOSIO not installed\033[m\n"
+    	printf "\033[0;31EOSIO not installed\033[m\n"
     	exit -1
     fi
 	
@@ -1044,30 +1050,92 @@ remove_locall_install_eosio(){
 	#############################
 	#CODE FROM EOSIO Uninstall script
 	###############################
-	binaries=(cleos
-          eosio-abigen
-          eosio-launcher
-        	  eosio-s2wasm
-          eosio-wast2wasm
-          eosiocpp
-          keosd
-          nodeos)
-	if [ "$(id -u)" -ne 0 ]; then
-		printf "\n\tThis requires sudo, please run ./eosio_uninstall.sh with sudo\n\n"
-		exit -1
+	OPT_LOCATION=$HOME/opt
+
+	binaries=(
+	   cleos
+	   eosio-abigen
+	   eosio-launcher
+	   eosio-s2wasm
+	   eosio-wast2wasm
+	   eosiocpp
+	   keosd
+	   nodeos
+	   eosio-applesdemo
+	)
+
+	if [ -d $OPT_LOCATION/eosio ]; then
+	   printf "Do you wish to remove this install? (requires sudo)\n"
+	   select yn in "Yes" "No"; do
+	      case $yn in
+	         [Yy]* )
+	            if [ "$(id -u)" -ne 0 ]; then
+	               printf "\nThis requires sudo, please run ./eosio_uninstall.sh with sudo\n\n"
+	               exit -1
+	            fi
+
+	            pushd $HOME &> /dev/null
+	            pushd opt &> /dev/null
+	            rm -rf eosio
+	            # Handle cleanup of directories created from installation
+	            if [ "$1" == "--full" ]; then
+	               if [ -d ~/Library/Application\ Support/eosio ]; then rm -rf ~/Library/Application\ Support/eosio; fi # Mac OS
+	               if [ -d ~/.local/share/eosio ]; then rm -rf ~/.local/share/eosio; fi # Linux
+	            fi
+	            popd &> /dev/null
+	            pushd bin &> /dev/null
+	            for binary in ${binaries[@]}; do
+	               rm ${binary}
+	            done
+	            popd &> /dev/null
+	            pushd lib/cmake &> /dev/null
+	            rm -rf eosio
+	            popd &> /dev/null
+
+	            break;;
+	         [Nn]* )
+	            printf "Aborting uninstall\n\n"
+	            exit -1;;
+	      esac
+	   done
 	fi
-	pushd /usr/local &> /dev/null
-	rm -rf eosio
-	pushd bin &> /dev/null
-	for binary in ${binaries[@]}; do
-		rm ${binary}
-	done
-	# Handle cleanup of directories created from installation
-	if [ "$1" == "--full" ]; then
-	    if [ -d ~/Library/Application\ Support/eosio ]; then rm -rf ~/Library/Application\ Support/eosio; fi # Mac OS
-	    if [ -d ~/.local/share/eosio ]; then rm -rf ~/.local/share/eosio; fi # Linux
+
+	if [ -d "/usr/local/eosio" ]; then
+	   printf "Do you wish to remove this install? (requires sudo)\n"
+	   select yn in "Yes" "No"; do
+	      case $yn in
+	         [Yy]* )
+	            if [ "$(id -u)" -ne 0 ]; then
+	               printf "\nThis requires sudo, please run ./eosio_uninstall.sh with sudo\n\n"
+	               exit -1
+	            fi
+
+	            pushd /usr/local &> /dev/null
+	            pushd opt &> /dev/null
+	            rm -rf eosio
+	            # Handle cleanup of directories created from installation
+	            if [ "$1" == "--full" ]; then
+	               if [ -d ~/Library/Application\ Support/eosio ]; then rm -rf ~/Library/Application\ Support/eosio; fi # Mac OS
+	               if [ -d ~/.local/share/eosio ]; then rm -rf ~/.local/share/eosio; fi # Linux
+	            fi
+	            popd &> /dev/null
+	            pushd bin &> /dev/null
+	            for binary in ${binaries[@]}; do
+	               rm ${binary}
+	            done
+	            popd &> /dev/null
+	            pushd lib/cmake &> /dev/null
+	            rm -rf eosio
+	            popd &> /dev/null
+
+	            break;;
+	         [Nn]* )
+	            printf "Aborting uninstall\n\n"
+	            exit -1;;
+	      esac
+	   done
 	fi
-	popd &> /dev/null
+
 
 }
 
@@ -1209,7 +1277,7 @@ search_previous_version(){
 ######################################################################################################################################################
 	logo
 	printf "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"
-	if [[ -d "/usr/opt/eosio" ]]
+	if [[ -d $EOS_BINARY_LOCATION ]] #[[ -d "/usr/opt/eosio" ]]
 	then
 		printf  "\033[0mEOSIO binary installation\t\t  [\033[0;32m Found \033[m]\n"
 		if [[ $OS == "ubuntu" ]]
@@ -1230,12 +1298,7 @@ search_previous_version(){
 			fi
 		fi
 		printf "\n"
-		# if [[ -n $(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"') ]]
-		# then 
-		# 	printf "Unfortunately, there are no binary files yet. Upgrade possible only from source code.\n"
-		# 	printf "But in your case you have binary installation, please try run update later\n"
-		# 	exit 1
-		# fi
+		
 		select answer in "Update EOSIO" "Install Jungle Node" "Uninstall EOSIO" "Exit" ; do
 		case $answer in
 			"Update EOSIO")
@@ -1267,11 +1330,21 @@ search_previous_version(){
 		else
 			printf "Installed EOSIO\t\t\t\t  [\033[0;32m Version: %s  \033[m]\t[\033[0;32m Latest \033[m]\n" "$(/usr/local/eosio/bin/nodeos -v)"
 		fi
+	elif [[ -d $EOS_BUILDED_LOCATION ]]
+	then
+		if [[ $($EOS_BUILDED_LOCATION/nodeos -v) != $TAG ]]
+		then
+			printf "Installed EOSIO\t\t\t\t  [\033[0;32m Version: %s  \033[m]\t[\033[0;31m New update %s  \033[m]\n" "$($EOS_BUILDED_LOCATION/nodeos -v)" "$TAG"
+		else
+			printf "Installed EOSIO\t\t\t\t  [\033[0;32m Version: %s  \033[m]\t[\033[0;32m Latest \033[m]\n" "$($EOS_BUILDED_LOCATION/nodeos -v)"
+		fi
+
+
 		####################################
 		#part from eosio uninstaller script 
 		# https://github.com/EOSIO/eos/blob/master/eosio_uninstall.sh
 		####################################
-		if [ -d "/usr/local/eosio" ]; then
+		if [ -d "/usr/local/eosio" ] || [ -d "$EOS_BUILDED_LOCATION" ]; then
 			   printf "\n"
 			   select yn in "Update EOSIO" "Install Jungle Node" "Uninstall EOSIO" "Exit"; do
 			      case $yn in
