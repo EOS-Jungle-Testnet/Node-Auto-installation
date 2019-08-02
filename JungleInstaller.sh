@@ -24,9 +24,9 @@ install_tools(){
 	elif [[ $OS == "centos" ]]
 	then
 		yum -y update && yum -y install git wget sudo curl epel-release; yum -y install jq
-	elif [[ $OS == "fedora" ]]
-	then
-		dnf -y install git wget sudo dnf-yum curl jq tar
+	# # elif [[ $OS == "fedora" ]]
+	# then
+	# 	dnf -y install git wget sudo dnf-yum curl jq tar
 	fi
 }
 
@@ -41,8 +41,10 @@ OS_SOURCE_DIR=""
 TESTNET="JungleTestnet"
 TESTNET_BIN_DIR="$GLOBAL_PATH/bin/bin"
 DATE=$(date +%Y-%m-%d)
+#EOS_INSTALL_DIR="$GLOBAL_PATH/EOSIO_INSTALL_DIR"
 EOS_SOURCE_DIR=""
-EOS_BUILDED_LOCATION="$HOME/opt/eosio/bin"
+#EOS_BUILDED_LOCATION_U="$EOS_INSTALL_DIR/opt/eosio/bin"
+#EOS_BUILDED_LOCATION="$EOS_INSTALL_DIR/bin"
 EOS_BINARY_LOCATION="/usr/opt/eosio"
 
 if [[ -f $(find /usr -type f -name curl) ]] && [[ -f $(find /usr -type f -name jq) ]]
@@ -51,11 +53,11 @@ then
 	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
     EOSIO_DEB16=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"')
 	EOSIO_DEB18=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu18_bin' | tr -d '"')
-	EOSIO_FEDORA27=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.fedora27_bin' | tr -d '"')
+	#EOSIO_FEDORA27=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.fedora27_bin' | tr -d '"')
 	EOSIO_CENTOS7=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.centos7_bin' | tr -d '"')
 else
 	clear
-	if [[ $OS == "centos" || $OS == "fedora" || $OS == "ubuntu" ]]
+	if [[ $OS == "centos" || $OS == "ubuntu" ]]
 	then
 		printf "These packages are requierd to prepare a NODE for JungleTestNet:\n"
 		if [[ $OS == "centos" ]]
@@ -63,11 +65,11 @@ else
 			for i in "git" "wget" "sudo" "curl" "epel-release" "jq";do
 				printf "%s\t" "$i"
 			done
-		elif [[ $OS == "fedora" ]]
-		then
-			for i in "git" "wget" "sudo" "curl" "tar" "dnf-yum" "jq";do
-				printf "%s\t" "$i"
-			done
+		# elif [[ $OS == "fedora" ]]
+		# then
+		# 	for i in "git" "wget" "sudo" "curl" "tar" "dnf-yum" "jq";do
+		# 		printf "%s\t" "$i"
+		# 	done
 		elif [[ $OS == "ubuntu" ]]
 		then
 			for i in "git" "wget"  "curl" "jq";do
@@ -96,10 +98,11 @@ else
 	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
     EOSIO_DEB16=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"')
 	EOSIO_DEB18=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu18_bin' | tr -d '"')
-	EOSIO_FEDORA27=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.fedora27_bin' | tr -d '"')
+	#EOSIO_FEDORA27=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.fedora27_bin' | tr -d '"')
 	EOSIO_CENTOS7=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.centos7_bin' | tr -d '"')
 fi
 
+EOS_BUILDED_LOCATION="$GLOBAL_PATH/eosio_bin/$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]')/bin/"
 ################################################################
 #
 #CONFIG SECTION VAIRABLES
@@ -619,7 +622,7 @@ select answer in "Yes" "No" "Exit"; do
     	chain-state-db-guard-size-mb = 128 
     	reversible-blocks-db-guard-size-mb = 2
 
-	    mongodb-queue-size = 256
+	    #mongodb-queue-size = 256
 	    # mongodb-uri =
 
 	    # peer-key =
@@ -627,8 +630,8 @@ select answer in "Yes" "No" "Exit"; do
 
 	    plugin = eosio::producer_plugin
 	    plugin = eosio::chain_api_plugin
-	    plugin = eosio::history_plugin
-	    plugin = eosio::history_api_plugin
+	    #plugin = eosio::history_plugin
+	    #plugin = eosio::history_api_plugin
 	    plugin = eosio::chain_plugin
 
 	    #plugin = net_plugin
@@ -925,32 +928,95 @@ EOF
 ######################################################
 ##Source Section
 ######################################################
-create_symlink_path(){
-	if  [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio/bin" ]]
-	then
-		if [[ ! -L "$TESTNET_BIN_DIR" ]]
-		then
-			[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin #ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
-			ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
-			
-		elif [[ -L "$TESTNET_BIN_DIR" ]] 
-			then
-				unlink $TESTNET_BIN_DIR
-				#ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
-				ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
-		fi
-	elif [[ -d "/usr/opt/eosio" ]]
-	then
-		if [[ ! -L "$TESTNET_BIN_DIR" ]]
-		then
-			[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin
-			ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
-			
-		elif [[ -L "$TESTNET_BIN_DIR" ]] 
-			then
-				unlink $TESTNET_BIN_DIR
-				ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
+# create_symlink_path(){
 
+# 	if  [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio/bin" ]]
+# 	then
+# 		if [[ ! -L "$TESTNET_BIN_DIR" ]]
+# 		then
+# 			[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin #ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+# 			ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
+			
+# 		elif [[ -L "$TESTNET_BIN_DIR" ]] 
+# 			then
+# 				unlink $TESTNET_BIN_DIR
+# 				#ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+# 				ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
+# 		fi
+# 	elif [[ -d "/usr/opt/eosio" ]]
+# 	then
+# 		if [[ ! -L "$TESTNET_BIN_DIR" ]]
+# 		then
+# 			[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin
+# 			ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
+			
+# 		elif [[ -L "$TESTNET_BIN_DIR" ]] 
+# 			then
+# 				unlink $TESTNET_BIN_DIR
+# 				ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
+
+# 		fi
+# 	fi
+
+# }
+create_symlink_path(){
+	if [[ $OS == "ubuntu" ]]
+	then
+		if  [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio/bin" ]]
+		then
+			if [[ ! -L "$TESTNET_BIN_DIR" ]]
+			then
+				[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin #ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+				ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
+				
+			elif [[ -L "$TESTNET_BIN_DIR" ]] 
+				then
+					unlink $TESTNET_BIN_DIR
+					#ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+					ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
+			fi
+		elif [[ -d "/usr/opt/eosio" ]]
+		then
+			if [[ ! -L "$TESTNET_BIN_DIR" ]]
+			then
+				[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin
+				ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
+				
+			elif [[ -L "$TESTNET_BIN_DIR" ]] 
+				then
+					unlink $TESTNET_BIN_DIR
+					ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
+
+			fi
+		fi
+	elif [[ $OS == "centos" ]]
+	then
+		if  [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio/bin" ]]
+		then
+			if [[ ! -L "$TESTNET_BIN_DIR" ]]
+			then
+				[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin #ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+				ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
+				
+			elif [[ -L "$TESTNET_BIN_DIR" ]] 
+				then
+					unlink $TESTNET_BIN_DIR
+					#ln -s /usr/local/eosio/bin $GLOBAL_PATH/bin
+					ln -s $EOS_BUILDED_LOCATION $GLOBAL_PATH/bin/bin
+			fi
+		elif [[ -d "/usr/opt/eosio" ]]
+		then
+			if [[ ! -L "$TESTNET_BIN_DIR" ]]
+			then
+				[ ! -d $GLOBAL_PATH/bin ] && mkdir $GLOBAL_PATH/bin
+				ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
+				
+			elif [[ -L "$TESTNET_BIN_DIR" ]] 
+				then
+					unlink $TESTNET_BIN_DIR
+					ln -s /usr/opt/eosio/$EOS_VER/bin $GLOBAL_PATH/bin/bin
+
+			fi
 		fi
 	fi
 
@@ -962,6 +1028,10 @@ install_from_source(){
 	then
 		EOS_SOURCE_DIR="$GLOBAL_PATH/eos-source"
 	fi
+    #if [[ ! -d $EOS_INSTALL_DIR ]]
+    #then 
+    #    mkdir $EOS_INSTALL_DIR
+    #fi
 
 	if [[ ! -d $EOS_SOURCE_DIR ]]
 	then
@@ -972,27 +1042,56 @@ install_from_source(){
     	git clone https://github.com/eosio/eos --recursive .
     	git checkout $TAG
     	git submodule update --init --recursive
-    	./scripts/eosio_build.sh -s EOS
-    	./scripts/eosio_install.sh
+    	./scripts/eosio_build.sh  -P -y
+	#sed -i 's/\-f / \! \-f\ /' scripts/eosio_install.sh
+    	#./scripts/eosio_install.sh
+	if [[ ! -d $EOS_BUILDED_LOCATION ]];then
+		mkdir -p $EOS_BUILDED_LOCATION
+	fi
+	cp build/programs/cleos/cleos $EOS_BUILDED_LOCATION
+	cp build/programs/keosd/keosd $EOS_BUILDED_LOCATION
+	cp build/programs/nodeos/nodeos $EOS_BUILDED_LOCATION
 
     else
     	cd $EOS_SOURCE_DIR
     
     	git clone https://github.com/eosio/eos --recursive .
+	git checkout -f
+	git branch -f
+	git pull
     	git checkout $TAG
     	git submodule update --init --recursive
-    	./scripts/eosio_build.sh -s EOS
-    	./scripts/eosio_install.sh
+    	./scripts/eosio_build.sh -P -y
+	#	sed -i 's/\-f / \! \-f\ /' scripts/eosio_install.sh
+    	#./scripts/eosio_install.sh
+	if [[ ! -d $EOS_BUILDED_LOCATION ]];then
+                mkdir -p $EOS_BUILDED_LOCATION
+        fi
+        cp build/programs/cleos/cleos $EOS_BUILDED_LOCATION
+        cp build/programs/keosd/keosd $EOS_BUILDED_LOCATION
+        cp build/programs/nodeos/nodeos $EOS_BUILDED_LOCATION
     fi
-    if [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio" ]]
-    then
-    	create_symlink_path
-    	config_func
-    else
-    	printf "\033[0;31EOSIO not installed\033[m\n"
-    	exit -1
-    fi
-	
+	if [[ $OS == "ubuntu" ]]
+	then
+		if [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio" ]]
+		then
+			create_symlink_path
+			config_func
+		else
+			printf "\033[0;31EOSIO not installed\033[m\n"
+			exit -1
+		fi
+	elif [[ $OS == "centos" ]]
+	then
+		if [[ -d $EOS_BUILDED_LOCATION ]] #[[ -d "/usr/local/eosio" ]]
+		then
+			create_symlink_path
+			config_func
+		else
+			printf "\033[0;31EOSIO not installed\033[m\n"
+			exit -1
+		fi
+	fi
 }
 
 update_from_source(){
@@ -1011,8 +1110,16 @@ update_from_source(){
 	git pull
 	git checkout $TAG
 	git submodule update --init --recursive
-	./scripts/eosio_build.sh -s EOS
-	./scripts/eosio_install.sh
+	./scripts/eosio_build.sh -i $EOS_INSTALL_BIN_DIR -P -f -y
+	#sed -i 's/\-f / \! \-f\ /' scripts/eosio_install.sh
+	#./scripts/eosio_install.sh
+	if [[ ! -d $EOS_BUILDED_LOCATION ]];then
+                mkdir -p $EOS_BUILDED_LOCATION
+        fi
+        cp build/programs/cleos/cleos $EOS_BUILDED_LOCATION
+        cp build/programs/keosd/keosd $EOS_BUILDED_LOCATION
+        cp build/programs/nodeos/nodeos $EOS_BUILDED_LOCATION
+	
 	create_symlink_path
 	printf "DONE\n"
 }
@@ -1047,87 +1154,16 @@ remove_eosio(){
 }
 
 remove_locall_install_eosio(){
-	#############################
-	#CODE FROM EOSIO Uninstall script
-	###############################
-	OPT_LOCATION=$HOME/opt
-
-	binaries=(
-	   cleos
-	   eosio-abigen
-	   eosio-launcher
-	   eosio-s2wasm
-	   eosio-wast2wasm
-	   eosiocpp
-	   keosd
-	   nodeos
-	   eosio-applesdemo
-	)
-
-	if [ -d $OPT_LOCATION/eosio ]; then
+	if [ -d "$EOS_INSTALL_DIR" ]; then
 	   printf "Do you wish to remove this install? (requires sudo)\n"
 	   select yn in "Yes" "No"; do
 	      case $yn in
 	         [Yy]* )
-	            if [ "$(id -u)" -ne 0 ]; then
+				if [ "$(id -u)" -ne 0 ]; then
 	               printf "\nThis requires sudo, please run ./eosio_uninstall.sh with sudo\n\n"
 	               exit -1
 	            fi
-
-	            pushd $HOME &> /dev/null
-	            pushd opt &> /dev/null
-	            rm -rf eosio
-	            # Handle cleanup of directories created from installation
-	            if [ "$1" == "--full" ]; then
-	               if [ -d ~/Library/Application\ Support/eosio ]; then rm -rf ~/Library/Application\ Support/eosio; fi # Mac OS
-	               if [ -d ~/.local/share/eosio ]; then rm -rf ~/.local/share/eosio; fi # Linux
-	            fi
-	            popd &> /dev/null
-	            pushd bin &> /dev/null
-	            for binary in ${binaries[@]}; do
-	               rm ${binary}
-	            done
-	            popd &> /dev/null
-	            pushd lib/cmake &> /dev/null
-	            rm -rf eosio
-	            popd &> /dev/null
-
-	            break;;
-	         [Nn]* )
-	            printf "Aborting uninstall\n\n"
-	            exit -1;;
-	      esac
-	   done
-	fi
-
-	if [ -d "/usr/local/eosio" ]; then
-	   printf "Do you wish to remove this install? (requires sudo)\n"
-	   select yn in "Yes" "No"; do
-	      case $yn in
-	         [Yy]* )
-	            if [ "$(id -u)" -ne 0 ]; then
-	               printf "\nThis requires sudo, please run ./eosio_uninstall.sh with sudo\n\n"
-	               exit -1
-	            fi
-
-	            pushd /usr/local &> /dev/null
-	            pushd opt &> /dev/null
-	            rm -rf eosio
-	            # Handle cleanup of directories created from installation
-	            if [ "$1" == "--full" ]; then
-	               if [ -d ~/Library/Application\ Support/eosio ]; then rm -rf ~/Library/Application\ Support/eosio; fi # Mac OS
-	               if [ -d ~/.local/share/eosio ]; then rm -rf ~/.local/share/eosio; fi # Linux
-	            fi
-	            popd &> /dev/null
-	            pushd bin &> /dev/null
-	            for binary in ${binaries[@]}; do
-	               rm ${binary}
-	            done
-	            popd &> /dev/null
-	            pushd lib/cmake &> /dev/null
-	            rm -rf eosio
-	            popd &> /dev/null
-
+	            rm -rf $EOS_INSTALL_DIR
 	            break;;
 	         [Nn]* )
 	            printf "Aborting uninstall\n\n"
@@ -1160,12 +1196,12 @@ update_eosio(){
 		#rpm -Uvh ./eosio*${EOS_VER}*.rpm --nodeps
 		yum -y update ./eosio*${EOS_VER}*.rpm
 		rm ./eosio*${EOS_VER}*.rpm
-	elif [[ $OS == "fedora" ]]
-	then
-		$GET_COMM $EOSIO_FEDORA27
-		#rpm -Uvh ./eosio*${EOS_VER}*.rpm --nodeps
-		yum -y update ./eosio*${EOS_VER}*.rpm
-		rm ./eosio*${EOS_VER}*.rpm
+	# elif [[ $OS == "fedora" ]]
+	# then
+	# 	$GET_COMM $EOSIO_FEDORA27
+	# 	#rpm -Uvh ./eosio*${EOS_VER}*.rpm --nodeps
+	# 	yum -y update ./eosio*${EOS_VER}*.rpm
+	# 	rm ./eosio*${EOS_VER}*.rpm
 	fi
 	
 	if [ $? -gt 0 ]
@@ -1239,11 +1275,11 @@ install_rpm(){
 		$GET_COMM $EOSIO_CENTOS7
 		#rpm -ivh ./eosio*${EOS_VER}*.rpm --nodeps
 		yum -y install ./eosio*${EOS_VER}*.rpm
-	elif [[ $OS == "fedora" ]]
-	then
-		$GET_COMM $EOSIO_FEDORA27
-		#rpm -ivh ./eosio*${EOS_VER}*.rpm --nodeps
-		yum -y install ./eosio*${EOS_VER}*.rpm
+	# elif [[ $OS == "fedora" ]]
+	# then
+	# 	$GET_COMM $EOSIO_FEDORA27
+	# 	#rpm -ivh ./eosio*${EOS_VER}*.rpm --nodeps
+	# 	yum -y install ./eosio*${EOS_VER}*.rpm
 	fi
 
 	if [[ -n $(rpm -qa | grep eosio) ]]
@@ -1288,7 +1324,7 @@ search_previous_version(){
 			else
 				printf  "Installed EOSIO\t\t\t\t  [\033[0;32m %s  \033[m]\t[\033[0;32m  Latest \033[m]\n" "$(apt-cache show eosio | grep -i "version")"
 			fi
-		elif [[ $OS == "centos" ]] || [[ $OS == "fedora" ]]
+		elif [[ $OS == "centos" ]] #|| [[ $OS == "fedora" ]]
 		then
 			if [[ $(yum info eosio | grep -i "version" | grep -o '[0-9]\.[0-9]\.[0-9]') != $EOS_VER ]]
 			then
@@ -1332,13 +1368,20 @@ search_previous_version(){
 		fi
 	elif [[ -d $EOS_BUILDED_LOCATION ]]
 	then
-		if [[ $($EOS_BUILDED_LOCATION/nodeos -v) != $TAG ]]
+		if [[ -x $EOS_BUILDED_LOCATION/nodeos ]] && [[ $($EOS_BUILDED_LOCATION/nodeos -v) != $TAG ]]
 		then
 			printf "Installed EOSIO\t\t\t\t  [\033[0;32m Version: %s  \033[m]\t[\033[0;31m New update %s  \033[m]\n" "$($EOS_BUILDED_LOCATION/nodeos -v)" "$TAG"
 		else
 			printf "Installed EOSIO\t\t\t\t  [\033[0;32m Version: %s  \033[m]\t[\033[0;32m Latest \033[m]\n" "$($EOS_BUILDED_LOCATION/nodeos -v)"
 		fi
-
+	# elif [[ -d $EOS_BUILDED_LOCATION ]]
+	# then
+	# 	if if [[ -x $EOS_BUILDED_LOCATION/nodeos ]] && [[ $($EOS_BUILDED_LOCATION_U/nodeos -v) != $TAG ]]
+	# 	then
+	# 		printf "Installed EOSIO\t\t\t\t  [\033[0;32m Version: %s  \033[m]\t[\033[0;31m New update %s  \033[m]\n" "$($EOS_BUILDED_LOCATION/nodeos -v)" "$TAG"
+	# 	else
+	# 		printf "Installed EOSIO\t\t\t\t  [\033[0;32m Version: %s  \033[m]\t[\033[0;32m Latest \033[m]\n" "$($EOS_BUILDED_LOCATION/nodeos -v)"
+	# 	fi
 
 		####################################
 		#part from eosio uninstaller script 
@@ -1380,7 +1423,7 @@ search_previous_version(){
 							then
 								install_deb
 								
-							elif [[ $OS == "centos" ]] || [[ $OS == "fedora" ]]
+							elif [[ $OS == "centos" ]] #|| [[ $OS == "fedora" ]]
 							then
 								#printf "there are no binaries file, you needinstall from source"
 								install_rpm
@@ -1423,19 +1466,19 @@ sync_method(){
 			then
 				if [[ $OS_VER == "16.04" ]]
 				then
-					wget http://backup.jungletestnet.io/ubuntu16/blocks-latest.tar.gz
-					wget http://backup.jungletestnet.io/ubuntu16/state-latest.tar.gz
-					tar xzfv blocks-latest.tar.gz -C $TESTNET_DIR/
-					tar xzfv state-latest.tar.gz -C $TESTNET_DIR/
+					wget http://backup.cryptolions.io/Jungle/ubuntu16/latest-blocks.tar.gz
+					wget http://backup.cryptolions.io/Jungle/ubuntu16/latest-state.tar.gz
+					tar xzfv latest-blocks.tar.gz -C $TESTNET_DIR/
+					tar xzfv latest-state.tar.gz -C $TESTNET_DIR/
 					cd $TESTNET_DIR
 					./start.sh
 					printf "Go to $TESTNET and check file stderr.txt is synchronization started?\n"
 				elif [[ $OS_VER == "18.04" ]]
 				then
-					wget http://backup.jungletestnet.io/ubuntu18/blocks-latest.tar.gz
-					wget http://backup.jungletestnet.io/ubuntu18/state-latest.tar.gz
-					tar xzfv blocks-latest.tar.gz -C $TESTNET_DIR/
-					tar xzfv state-latest.tar.gz -C $TESTNET_DIR/
+					wget http://backup.cryptolions.io/Jungle/ubuntu18/latest-blocks.tar.gz
+					wget http://backup.cryptolions.io/Jungle/ubuntu18/latest-state.tar.gz
+					tar xzfv latest-blocks.tar.gz -C $TESTNET_DIR/
+					tar xzfv latest-state.tar.gz -C $TESTNET_DIR/
 					cd $TESTNET_DIR
 					./start.sh
 					printf "Go to $TESTNET and check file stderr.txt is synchronization started?\n"
@@ -1466,7 +1509,7 @@ then
 	clear
 	search_previous_version
 	
-elif [[ $OS == "centos" ]] || [[ $OS == "fedora" ]]
+elif [[ $OS == "centos" ]] #|| [[ $OS == "fedora" ]]
 then
 	clear
 	search_previous_version
