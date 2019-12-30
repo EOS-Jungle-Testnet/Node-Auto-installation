@@ -50,7 +50,7 @@ EOS_BINARY_LOCATION="/usr/opt/eosio"
 if [[ -f $(find /usr -type f -name curl) ]] && [[ -f $(find /usr -type f -name jq) ]]
 then
 	TAG=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
+	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9] \|[0-9]\.[0-9]\.[0-9]-[a-z]*[0-9]')
     EOSIO_DEB16=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"')
 	EOSIO_DEB18=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu18_bin' | tr -d '"')
 	#EOSIO_FEDORA27=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.fedora27_bin' | tr -d '"')
@@ -573,7 +573,11 @@ select answer in "Yes" "No" "Exit"; do
 	    http-validate-host = false
 	    verbose-http-errors = true
 	    abi-serializer-max-time-ms = 2000
-	    wasm-runtime = wabt
+	    #Only!! for performance eosio 2.0+
+    	eos-vm-oc-compile-threads = 4
+    	eos-vm-oc-enable = 1
+    	wasm-runtime = eos-vm-jit
+    	#END
 
 	  ' >> $TESTNET_DIR/config.ini
 
@@ -610,7 +614,6 @@ select answer in "Yes" "No" "Exit"; do
 
 	    max-clients = 120
 	    connection-cleanup-period = 30
-	    network-version-match = 0
 	    sync-fetch-span = 2000
 	    enable-stale-production = false
 	    chain-threads = 4
