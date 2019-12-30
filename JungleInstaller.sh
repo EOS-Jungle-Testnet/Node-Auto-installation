@@ -1450,7 +1450,7 @@ search_previous_version(){
 sync_method(){
 	printf "\n"
 	printf "Please choose a way to sync your node with Jungle testnet :\n"
-	select choose in "Classic syncronisation" "Using CryptoLoins snapshot (Ubuntu 16/18 only)" "Exit"; do
+	select choose in "Classic syncronisation" "Using CryptoLoins snapshot (Ubuntu 16/18 only)" "Using eosio portable sapshots" "Exit"; do
 	case $choose in
 		"Classic syncronisation")
 			cd $TESTNET_DIR
@@ -1490,6 +1490,13 @@ sync_method(){
 				printf "We do not support snapshot for your OS %s" "$OS"
 				sync_method
 			fi
+			break
+			;;
+		"Using eosio portable snapshot independent from OS" )
+			cd $TESTNET_DIR
+			mkdir snapshots && cd $TESTNET_DIR/snapshots && wget http://backup.cryptolions.io/Jungle/snapshots/latest-snapshot.bin
+			cd $TESTNET_DIR
+			./start.sh --snapshot $TESTNET_DIR/snapshots/latest-snapshot.bin
 			break
 			;;
 		"Exit" )
