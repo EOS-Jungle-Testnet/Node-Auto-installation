@@ -1450,7 +1450,7 @@ search_previous_version(){
 sync_method(){
 	printf "\n"
 	printf "Please choose a way to sync your node with Jungle testnet :\n"
-	select choose in "Classic syncronisation" "Using CryptoLoins snapshot (Ubuntu 16/18 only)" "Using eosio portable sapshots" "Exit"; do
+	select choose in "Classic syncronisation" "Using CryptoLoins snapshot (Ubuntu 16/18 only)" "Using eosio portable snapshot independent from OS" "Exit"; do
 	case $choose in
 		"Classic syncronisation")
 			cd $TESTNET_DIR
