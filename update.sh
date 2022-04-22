@@ -42,7 +42,7 @@ then
 	TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"')
 	RC_TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"')
 	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
-	RC_EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
+	RC_EOS_VER=$(curl -sS https://monitor2.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
 else
 	clear
 	printf "These packages are requierd to prepare a NODE for JungleTestNet:\n"
