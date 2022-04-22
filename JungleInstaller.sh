@@ -94,15 +94,15 @@ else
 		esac
 	done
 
-	TAG=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
-    EOSIO_DEB16=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"')
-	EOSIO_DEB18=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ubuntu18_bin' | tr -d '"')
+	TAG=$(curl -sS https://monitor3.jungletestnet.io/version.json | jq '.ver' | tr -d '"')
+	EOS_VER=$(curl -sS https://monitor3.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
+    EOSIO_DEB16=$(curl -sS https://monitor3.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"')
+	EOSIO_DEB18=$(curl -sS https://monitor3.jungletestnet.io/version.json | jq '.ubuntu18_bin' | tr -d '"')
 	#EOSIO_FEDORA27=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.fedora27_bin' | tr -d '"')
-	EOSIO_CENTOS7=$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.centos7_bin' | tr -d '"')
+	EOSIO_CENTOS7=$(curl -sS https://monitor3.jungletestnet.io/version.json | jq '.centos7_bin' | tr -d '"')
 fi
 
-EOS_BUILDED_LOCATION="$GLOBAL_PATH/eosio_bin/$(curl -sS https://monitor.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]')/bin/"
+EOS_BUILDED_LOCATION="$GLOBAL_PATH/eosio_bin/$(curl -sS https://monitor3.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]')/bin/"
 ################################################################
 #
 #CONFIG SECTION VAIRABLES
@@ -178,25 +178,25 @@ printf "\033[m"
 # }'
 
 GENESIS='{
-  "initial_timestamp": "2018-11-23T16:20:00",
-  "initial_key": "EOS8bRkmrfsQSmb87ix1EuFSe2NDsepKGCjUNgLEt1SDqw1fuhG4v",
-  "initial_configuration": {
-    "max_block_net_usage": 1048576,
+    "initial_timestamp": "2020-02-19T16:20:00",
+    "initial_key": "EOS6jUngLeXUEPEtS5A4JmEZUjg6ccuFAyshsg4Ty3MN6ks34quiX",
+    "initial_configuration": {
+    "max_block_net_usage": 524288,
     "target_block_net_usage_pct": 1000,
-    "max_transaction_net_usage": 524288,
+    "max_transaction_net_usage": 524287,
     "base_per_transaction_net_usage": 12,
     "net_usage_leeway": 500,
     "context_free_discount_net_usage_num": 20,
     "context_free_discount_net_usage_den": 100,
-    "max_block_cpu_usage": 200000,
-    "target_block_cpu_usage_pct": 2000,
+    "max_block_cpu_usage": 400000,
+    "target_block_cpu_usage_pct": 10,
     "max_transaction_cpu_usage": 150000,
-    "min_transaction_cpu_usage": 100,
+    "min_transaction_cpu_usage": 1,
     "max_transaction_lifetime": 3600,
     "deferred_trx_expiration_window": 600,
     "max_transaction_delay": 3888000,
-    "max_inline_action_size": 4096,
-    "max_inline_action_depth": 4,
+    "max_inline_action_size": 524287,
+    "max_inline_action_depth": 32,
     "max_authority_depth": 6,
     "max_ram_size": 34359738368
   }
@@ -310,15 +310,13 @@ select answer in "Yes" "No" "Exit"; do
 			WALLET_PORT="5553"
 
 			PEER_LIST='
-			    p2p-peer-address = jungle2.cryptolions.io:19876
-			    p2p-peer-address = jungle-p2p.eosio.cr:2086
-			    p2p-peer-address = peer.jungle.alohaeos.com:9876
-			    p2p-peer-address = 145.239.133.201:9876
-			    p2p-peer-address = 35.237.40.93:8888
-			    p2p-peer-address = jungle.eosgen.io:9876
-			    p2p-peer-address = 51.15.224.168:9876
-			    p2p-peer-address = jungle2.eosdac.io:9872
-			    p2p-peer-address = eos.eosza.io:9876
+			    p2p-peer-address = jungle3.eosdac.io:9876
+				p2p-peer-address = jungle.eosn.io:9876
+				p2p-peer-address = jungle3.atticlab.net:12876
+				p2p-peer-address = jungle3.eosusa.news:19876
+				p2p-peer-address = peer1-jungle.eosphere.io:9876
+				p2p-peer-address = jungle3.eossweden.org:59073
+				p2p-peer-address = peer.jungle3.alohaeos.com:9876
 			 '
 
 			ISBP=true
@@ -352,15 +350,13 @@ select answer in "Yes" "No" "Exit"; do
 			WALLET_PORT="5553"
 
 			PEER_LIST='
-			    p2p-peer-address = jungle2.cryptolions.io:19876
-			    p2p-peer-address = jungle-p2p.eosio.cr:2086
-			    p2p-peer-address = peer.jungle.alohaeos.com:9876
-			    p2p-peer-address = 145.239.133.201:9876
-			    p2p-peer-address = 35.237.40.93:8888
-			    p2p-peer-address = jungle.eosgen.io:9876
-			    p2p-peer-address = 51.15.224.168:9876
-			    p2p-peer-address = jungle2.eosdac.io:9872
-			    p2p-peer-address = eos.eosza.io:9876
+			    p2p-peer-address = jungle3.eosdac.io:9876
+				p2p-peer-address = jungle.eosn.io:9876
+				p2p-peer-address = jungle3.atticlab.net:12876
+				p2p-peer-address = jungle3.eosusa.news:19876
+				p2p-peer-address = peer1-jungle.eosphere.io:9876
+				p2p-peer-address = jungle3.eossweden.org:59073
+				p2p-peer-address = peer.jungle3.alohaeos.com:9876
 			 '
 
 			ISBP=false
@@ -625,9 +621,6 @@ select answer in "Yes" "No" "Exit"; do
     	chain-state-db-guard-size-mb = 128 
     	reversible-blocks-db-guard-size-mb = 2
 
-	    #mongodb-queue-size = 256
-	    # mongodb-uri =
-
 	    # peer-key =
 	    # peer-private-key =
 
@@ -637,8 +630,8 @@ select answer in "Yes" "No" "Exit"; do
 	    #plugin = eosio::history_api_plugin
 	    plugin = eosio::chain_plugin
 
-	    #plugin = net_plugin
-	    #plugin = net_api_plugin
+	    #plugin = eosio::net_plugin
+	    #plugin = eosio::net_api_plugin
 
 	    agent-name = '$PRODUCER_AGENT_NAME'
 

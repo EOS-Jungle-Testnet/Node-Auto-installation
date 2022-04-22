@@ -1,9 +1,9 @@
-# EOS Jungle2.0 Testnet auto-installer script
+# EOS Jungle3.0 Testnet auto-installer script
 
-Chain ID: e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473
+Chain ID: 2a02a0053e5a8cf73a56ba0fda11e4d92e0238a4a2aa74fccf46d5a910746840
 
 
-Please register at http://monitor.jungletestnet.io/#register  
+Please register at http://monitor3.jungletestnet.io/#register  
 
 After registration it will create an Installer script for you.  
 Please download and run it. It works for all operation system which support EOSIO.
