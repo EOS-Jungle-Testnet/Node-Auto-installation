@@ -39,10 +39,10 @@ TESTNET_BIN_DIR="$GLOBAL_PATH/bin"
 
 if [[ -f $(find /usr -type f -name curl)  &&  -f $(find /usr -type f -name jq) ]]
 then
-	TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"')
-	RC_TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
-	RC_EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
+	TAG=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"')
+	RC_TAG=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"')
+	EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
+	RC_EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
 else
 	clear
 	printf "These packages are requierd to prepare a NODE for JungleTestNet:\n"
@@ -76,10 +76,10 @@ else
 		esac
 	done
 	
-	TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"')
-	RC_TAG=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
-	RC_EOS_VER=$(curl -sS https://monitor.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
+	TAG=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"')
+	RC_TAG=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"')
+	EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.stable.ver' | tr -d '"'| grep -o '[0-9]\.[0-9]\.[0-9]')
+	RC_EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/versionnew.json | jq '.rc.ver' | tr -d '"' | grep  -o '[0-9]\.[0-9]\.[0-9]-.\+')
 fi
 #############
 #
