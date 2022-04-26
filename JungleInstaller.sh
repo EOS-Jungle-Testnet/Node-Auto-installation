@@ -50,7 +50,7 @@ EOS_BINARY_LOCATION="/usr/opt/eosio"
 if [[ -f $(find /usr -type f -name curl) ]] && [[ -f $(find /usr -type f -name jq) ]]
 then
 	TAG=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o -e "[0-9]\.[0-9]\.[0-9]" -e "[0-9]\.[0-9]\.[0-9]-[a-z]*[0-9]")
+	EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o -e "[0-9]*\.[0-9]*\.[0-9]*" #-e "[0-9]\.[0-9]\.[0-9]-[a-z]*[0-9]")
     EOSIO_DEB16=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"')
 	EOSIO_DEB18=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ubuntu18_bin' | tr -d '"')
 	EOSIO_CENTOS7=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.centos7_bin' | tr -d '"')
@@ -61,7 +61,7 @@ else
 		printf "These packages are requierd to prepare a NODE for JungleTestNet:\n"
 		if [[ $OS == "centos" ]]
 		then
-			for i in "git" "wget" "sudo" "curl" "epel-release" "jq";do
+			for i in "git" "wget" "sudo" "curl" "epel-release" "jq" "zstd";do
 				printf "%s\t" "$i"
 			done
 		# elif [[ $OS == "fedora" ]]
@@ -71,7 +71,7 @@ else
 		# 	done
 		elif [[ $OS == "ubuntu" ]]
 		then
-			for i in "git" "wget"  "curl" "jq";do
+			for i in "git" "wget"  "curl" "jq" "zstd";do
 				printf "%s\t" "$i"
 			done
 		fi
