@@ -94,7 +94,7 @@ else
 	done
 
 	TAG=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ver' | tr -d '"')
-	EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]\.[0-9]\.[0-9]')
+	EOS_VER=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ver' | tr -d '"' | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
     EOSIO_DEB16=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ubuntu16_bin' | tr -d '"')
 	EOSIO_DEB18=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.ubuntu18_bin' | tr -d '"')
 	EOSIO_CENTOS7=$(curl -sS https://monitor4.jungletestnet.io/version.json | jq '.centos7_bin' | tr -d '"')
