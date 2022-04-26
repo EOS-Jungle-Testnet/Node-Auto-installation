@@ -20,10 +20,10 @@ fi
 install_tools(){
 	if [[ $OS == "ubuntu" ]] || [[ $OS == "debian" ]]
 	then
-		apt -y update &&  apt -y install git wget curl jq
+		apt -y update &&  apt -y install git wget curl jq zstd
 	elif [[ $OS == "centos" ]]
 	then
-		yum -y update && yum -y install git wget sudo curl epel-release; yum -y install jq
+		yum -y update && yum -y install git wget sudo curl epel-release; yum -y install jq zstd
 	# # elif [[ $OS == "fedora" ]]
 	# then
 	# 	dnf -y install git wget sudo dnf-yum curl jq tar
@@ -1490,7 +1490,7 @@ sync_method(){
 			;;
 		"Using eosio portable snapshot independent from OS" )
 			cd $TESTNET_DIR
-			mkdir snapshots && cd $TESTNET_DIR/snapshots && wget http://backup.cryptolions.io/Jungle/snapshots/latest-snapshot.bin
+			mkdir snapshots && cd $TESTNET_DIR/snapshots && wget https://backup.cryptolions.io/Jungle/snapshots/latest-snapshot.bin.zst && zstd -d latest-snapshot.bin.zst
 			cd $TESTNET_DIR
 			./start.sh --snapshot $TESTNET_DIR/snapshots/latest-snapshot.bin
 			break
