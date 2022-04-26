@@ -1476,11 +1476,10 @@ sync_method(){
 				elif [[ $OS_VER == "18.04" ]]
 				then
 					wget https://backup.cryptolions.io/Jungle/full_backup/latest-blocks.tar.gz.zst
-					wget https://backup.cryptolions.io/Jungle/full_backup/latest-snapshot.bin.zst
+					cd $TESTNET_DIR/snapshots && wget https://backup.cryptolions.io/Jungle/full_backup/latest-snapshot.bin.zst && zstd latest-snapshot.bin.zst
 					tar axzfv latest-blocks.tar.gz.zst -C $TESTNET_DIR/
-					tar axzfv latest-state.tar.gz.zst -C $TESTNET_DIR/
 					cd $TESTNET_DIR
-					./start.sh --snapshot ./latest-snapshot.bin
+					./start.sh --snapshot .//snapshots/latest-snapshot.bin
 					printf "Go to $TESTNET and check file stderr.txt is synchronization started?\n"
 				fi
 			else
