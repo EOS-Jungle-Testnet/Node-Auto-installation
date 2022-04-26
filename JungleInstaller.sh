@@ -1465,21 +1465,22 @@ sync_method(){
 			then
 				if [[ $OS_VER == "16.04" ]]
 				then
-					wget http://backup.cryptolions.io/Jungle/ubuntu16/latest-blocks.tar.gz
-					wget http://backup.cryptolions.io/Jungle/ubuntu16/latest-state.tar.gz
-					tar xzfv latest-blocks.tar.gz -C $TESTNET_DIR/
-					tar xzfv latest-state.tar.gz -C $TESTNET_DIR/
-					cd $TESTNET_DIR
-					./start.sh
-					printf "Go to $TESTNET and check file stderr.txt is synchronization started?\n"
+					# wget http://backup.cryptolions.io/Jungle/ubuntu16/latest-blocks.tar.gz
+					# wget http://backup.cryptolions.io/Jungle/ubuntu16/latest-state.tar.gz
+					# tar xzfv latest-blocks.tar.gz -C $TESTNET_DIR/
+					# tar xzfv latest-state.tar.gz -C $TESTNET_DIR/
+					# cd $TESTNET_DIR
+					# ./start.sh
+					# printf "Go to $TESTNET and check file stderr.txt is synchronization started?\n"
+					printf "Unfortunatly for now we not support ubuntu 18"
 				elif [[ $OS_VER == "18.04" ]]
 				then
-					wget http://backup.cryptolions.io/Jungle/ubuntu18/latest-blocks.tar.gz
-					wget http://backup.cryptolions.io/Jungle/ubuntu18/latest-state.tar.gz
-					tar xzfv latest-blocks.tar.gz -C $TESTNET_DIR/
-					tar xzfv latest-state.tar.gz -C $TESTNET_DIR/
+					wget https://backup.cryptolions.io/Jungle/full_backup/latest-blocks.tar.gz.zst
+					wget https://backup.cryptolions.io/Jungle/full_backup/latest-snapshot.bin.zst
+					tar axzfv latest-blocks.tar.gz -C $TESTNET_DIR/
+					tar axzfv latest-state.tar.gz -C $TESTNET_DIR/
 					cd $TESTNET_DIR
-					./start.sh
+					./start.sh --snapshot ./latest-snapshot.bin
 					printf "Go to $TESTNET and check file stderr.txt is synchronization started?\n"
 				fi
 			else
