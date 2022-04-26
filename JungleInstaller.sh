@@ -1475,8 +1475,9 @@ sync_method(){
 					printf "Unfortunatly for now we not support ubuntu 18"
 				elif [[ $OS_VER == "18.04" ]]
 				then
+					cd $TESTNET_DIR
 					wget https://backup.cryptolions.io/Jungle/full_backup/latest-blocks.tar.gz.zst
-					cd $TESTNET_DIR && wget https://backup.cryptolions.io/Jungle/full_backup/latest-snapshot.bin.zst && zstd latest-snapshot.bin.zst
+					wget https://backup.cryptolions.io/Jungle/full_backup/latest-snapshot.bin.zst && zstd latest-snapshot.bin.zst
 					tar axzfv latest-blocks.tar.gz.zst -C $TESTNET_DIR/
 					cd $TESTNET_DIR
 					./start.sh --snapshot ./latest-snapshot.bin
