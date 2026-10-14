@@ -10,6 +10,11 @@
 # Home: jungletestnet.io
 ###########################################################################
 
+# DEPRECATED (2026-10-14): installs EOSIO v2.0.13, which can't run Jungle4 (Spring v1.2.2 / Savanna).
+echo "This installer is deprecated and can't set up a working Jungle4 node." >&2
+echo "Use the manual installation: https://github.com/EOS-Jungle-Testnet/Node-Manual-Installation" >&2
+exit 1
+
 if [[ $(id -u) != 0 ]]
 then 
 	printf "You should run this script with root privileges use sudo or su\n"
